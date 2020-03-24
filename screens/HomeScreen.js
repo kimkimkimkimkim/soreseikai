@@ -1,13 +1,52 @@
 import React,{ Component } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
+import {
+  StyleSheet,
+  Text,
+  View,
   TouchableOpacity,
   TextInput,
+  AsyncStorage,
 } from 'react-native';
 
+import {
+  db
+} from "../firebase/firebase"
+
+import {
+  getUserId
+} from "../asyncstorage/asyncstorage"
+
+import {
+  dateFormat
+} from "../methods/methods"
+
 export default class HomeScreen extends Component{
+
+  constructor(props){
+    super(props)
+
+    this.state = {
+      answer:"",
+      didAnswered:null, //回答済みかどうか
+    }
+  }
+
+  componentDidMount(){
+
+  }
+
+  async sendAnswer(){
+    if(this.state.answer=="")alert("1文字以上入力してください")
+
+    let userId = await getUserId()
+    let data = {
+      answer:this.state.answer,
+      userId:userId,
+      created_at:new Date(),
+    };
+
+    let setDoc = db.collection("answers").add(data);
+  }
 
   render(){
     return (
@@ -30,11 +69,20 @@ export default class HomeScreen extends Component{
         <View style={{height:10}}/>
         <TextInput
           style={styles.textInputContainer}
+          value={this.state.answer}
+          onChangeText={(t) => this.setState({answer:t})}
         />
+        <View style={{height:10}}/>
+        <TouchableOpacity
+          style={styles.sendButtonContainer}
+          onPress={() => this.sendAnswer()}
+        >
+          <Text style={styles.sendButtonText}>回答する</Text>
+        </TouchableOpacity>
       </View>
     );
   }
-  
+
 }
 
 const styles = StyleSheet.create({
@@ -81,5 +129,15 @@ const styles = StyleSheet.create({
     borderWidth:1,
     borderColor:"black",
     padding:5,
-  }
+  },
+  sendButtonContainer:{
+    height:50,
+    width:200,
+    backgroundColor:"lightblue",
+    justifyContent:"center",
+    alignItems:"center",
+  },
+  sendButtonText:{
+
+  },
 });
